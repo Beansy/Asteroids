@@ -28,11 +28,6 @@ public class GameDrawer
         this.centerShipOnCanvas();
     }
 
-    public Polygon getShipPolygon()
-    {
-        return this.theShipShape;
-    }
-
     public void drawShip()
     {
         theShipShape.Stroke = Brushes.Black;

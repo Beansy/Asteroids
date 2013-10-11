@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Timers;
 
 public class PlayerShip
 {
@@ -19,10 +20,17 @@ public class PlayerShip
     private double shipCenterY;
     private int shipSize;
     private double heading;
-    private int speed;
+    private double speed;
+    private double maxSpeed;
+    private double minSpeed;
     private double rotation;
     private PointCollection shipPoints;
     private Polygon theShipShape;
+    private bool gasIsOn;
+    private double acceleration;
+    private double decceleration;
+    private DateTime gasOnTimer;
+    private DateTime gasOffTimer;
 
     public PlayerShip()
 	{
@@ -31,6 +39,13 @@ public class PlayerShip
         this.shipSize = 15;
         this.speed = 0;
         this.rotation = 0;
+        this.acceleration = 0.2;
+        this.decceleration = 0.3;
+        this.maxSpeed = 35;
+        this.minSpeed = 0;
+        this.gasIsOn = false;
+        this.gasOnTimer = new DateTime();
+        this.gasOffTimer = new DateTime();
         this.shipPoints = new PointCollection();
         this.theShipShape = new Polygon();
         this.setInitialShipPoints();
@@ -45,7 +60,7 @@ public class PlayerShip
     {
         this.heading = newHeading;
     }
-
+     
     public double getShipCenterX()
     {
         return this.shipCenterX;
@@ -105,33 +120,19 @@ public class PlayerShip
 
     public void gasOn()
     {
-        if (this.speed <= 15)
+        this.minSpeed = 2;
+        if (this.gasIsOn == false)
         {
-            if (this.speed + 3 >= this.speed)
-            {
-                this.speed = 15;
-            }
-            else
-            {
-                this.speed += 3;
-            }
+            gasOnTimer = DateTime.Now;
+            this.gasIsOn = true;
         }
+        
     }
 
     public void gasOff()
     {
-        
-        if (this.speed >= 0)
-        {
-            if (this.speed - 3 <= this.speed)
-            {
-                this.speed = 0;
-            }
-            else
-            {
-                this.speed -= 3;
-            }
-        }
+        gasOffTimer = DateTime.Now;
+        this.gasIsOn = false;
     }
 
     public void rotationOn(double rotation)
@@ -169,7 +170,26 @@ public class PlayerShip
 
     public void updatePlayerShip()
     {
-        
+        double time;
+        if (this.gasIsOn == true)
+        {
+            time = Convert.ToDouble((DateTime.Now - gasOnTimer).TotalSeconds);
+            this.speed += acceleration * time;
+            if (this.speed > this.maxSpeed)
+            {
+                this.speed = this.maxSpeed;
+            }
+        }
+        else if (this.gasIsOn == false)
+        {
+            time = Convert.ToDouble((DateTime.Now - gasOffTimer).TotalSeconds);
+            this.speed -= decceleration * time;
+            if (this.speed < this.minSpeed)
+            {
+                this.speed = this.minSpeed;
+            }
+        }
+        //MessageBox.Show(speed.ToString());
         Matrix moveMatrix = new Matrix();
         double radians = ConversionTools.degreesToRadians(this.getHeading());
         double xMovement = Math.Cos(radians) * this.speed;
