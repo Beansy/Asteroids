@@ -19,6 +19,8 @@ public class PlayerShip
     private double shipCenterY;
     private int shipSize;
     private double heading;
+    private int speed;
+    private double rotation;
     private PointCollection shipPoints;
     private Polygon theShipShape;
 
@@ -27,6 +29,8 @@ public class PlayerShip
         this.shipCenterX = 0;
         this.shipCenterY = 0;
         this.shipSize = 15;
+        this.speed = 0;
+        this.rotation = 0;
         this.shipPoints = new PointCollection();
         this.theShipShape = new Polygon();
         this.setInitialShipPoints();
@@ -99,59 +103,88 @@ public class PlayerShip
         return this.shipPoints;
     }
 
-    public void moveMeForward()
+    public void gasOn()
     {
-        Matrix translateMatrix = new Matrix();
+        if (this.speed <= 15)
+        {
+            if (this.speed + 3 >= this.speed)
+            {
+                this.speed = 15;
+            }
+            else
+            {
+                this.speed += 3;
+            }
+        }
+    }
+
+    public void gasOff()
+    {
+        
+        if (this.speed >= 0)
+        {
+            if (this.speed - 3 <= this.speed)
+            {
+                this.speed = 0;
+            }
+            else
+            {
+                this.speed -= 3;
+            }
+        }
+    }
+
+    public void rotationOn(double rotation)
+    {
+        this.rotation = rotation;
+    }
+
+    public void rotationOff()
+    {
+        this.rotation = 0;
+    }
+
+    private void handleWallCollisions()
+    {
+        if (this.shipCenterX <= 0)
+        {
+            this.shipCenterX = 999;
+        }
+
+        if (this.shipCenterX >= 1000)
+        {
+            this.shipCenterX = 0;
+        }
+
+        if (this.shipCenterY <= 0)
+        {
+            this.shipCenterY = 999;
+        }
+
+        if (this.shipCenterY >= 1000)
+        {
+            this.shipCenterY = 0;
+        }
+    }
+
+    public void updatePlayerShip()
+    {
+        
+        Matrix moveMatrix = new Matrix();
         double radians = ConversionTools.degreesToRadians(this.getHeading());
-        double xMovement = Math.Cos(radians) * 10;
-        double yMovement = Math.Sin(radians) * 10;
-        //MessageBox.Show("Heading: " + playerShip.getHeading().ToString() + " centerx: " + playerShip.getShipCenterX().ToString() + " centery: " + playerShip.getShipCenterY().ToString());
+        double xMovement = Math.Cos(radians) * this.speed;
+        double yMovement = Math.Sin(radians) * this.speed;
 
         this.setShipCenterX(xMovement += this.getShipCenterX());
         this.setShipCenterY(yMovement += this.getShipCenterY());
-        //MessageBox.Show("Heading: " + playerShip.getHeading().ToString() + " centerx: " + playerShip.getShipCenterX().ToString() + " centery: " + playerShip.getShipCenterY().ToString());
+        double newHeading = this.getHeading() + this.rotation;
 
-        translateMatrix.Translate(xMovement, yMovement);
-        translateMatrix.RotateAt(this.getHeading(), this.getShipCenterX(), this.getShipCenterY());
-
-        this.theShipShape.RenderTransform = new MatrixTransform(translateMatrix);
-
-    }
-
-    public void rotateMe(double rotation)
-    {
-        Matrix rotateMatrix = new Matrix();
-        double newHeading = this.getHeading() + rotation;
-        rotateMatrix.Translate(this.getShipCenterX(), this.getShipCenterY());
-        rotateMatrix.RotateAt(newHeading, this.getShipCenterX(), this.getShipCenterY());
-        //MessageBox.Show("Heading: " + newHeading.ToString() + " centerx: " + playerShip.getShipCenterX().ToString() + " centery: " + playerShip.getShipCenterY().ToString());
-        theShipShape.RenderTransform = new MatrixTransform(rotateMatrix);
+        moveMatrix.Translate(xMovement, yMovement);
+        moveMatrix.RotateAt(newHeading, this.getShipCenterX(), this.getShipCenterY());
         this.setHeading(newHeading);
-    }
+        theShipShape.RenderTransform = new MatrixTransform(moveMatrix);
 
-    public void updateMove(Dictionary<Key, bool> keys)
-    {
-        if (keys[Key.Up] == true && keys[Key.Right] == true)
-        {
-            this.moveMeForward();
-            this.rotateMe(10);
-        }
-        else if (keys[Key.Up] == true && keys[Key.Left] == true)
-        {
-            this.moveMeForward();
-            this.rotateMe(-10);
-        }
-        else if (keys[Key.Up] == true)
-        {
-            this.moveMeForward();
-        }
-        else if (keys[Key.Left] == true)
-        {
-            this.rotateMe(-10);
-        }
-        else if (keys[Key.Right] == true)
-        {
-            this.rotateMe(10);
-        }
+        this.handleWallCollisions();
+        
     }
 }

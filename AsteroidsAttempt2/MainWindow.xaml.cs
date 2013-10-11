@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Timers;
 
 namespace AsteroidsAttempt2
 {
@@ -22,7 +23,6 @@ namespace AsteroidsAttempt2
     {
         PlayerShip playerShip;
         GameDrawer gameDrawer;
-        InputHandler inputHandler;
         Dictionary<Key, bool> keyStatus = new Dictionary<Key, bool>();
  
         public MainWindow()
@@ -32,7 +32,6 @@ namespace AsteroidsAttempt2
             this.playerShip = new PlayerShip();
             this.gameDrawer = new GameDrawer(GameCanvas, playerShip);
             this.gameDrawer.drawShip();
-            this.inputHandler = new InputHandler(GameCanvas, playerShip);
             this.keyStatus.Add(Key.Up, false);
             this.keyStatus.Add(Key.Left, false);
             this.keyStatus.Add(Key.Right, false);
@@ -42,21 +41,18 @@ namespace AsteroidsAttempt2
         {
             if (e.Key == Key.Left)
             {
-                keyStatus[Key.Left] = true;
+                playerShip.rotationOn(-10);
             }
    
             if (e.Key == Key.Right)
             {
-                keyStatus[Key.Right] = true;
+                playerShip.rotationOn(10);
             }
 
             if (e.Key == Key.Up)
             {
-                keyStatus[Key.Up] = true;
+                playerShip.gasOn();
             }
-       
-
-            playerShip.updateMove(keyStatus);
 
         }
 
@@ -64,20 +60,42 @@ namespace AsteroidsAttempt2
         {
             if (e.Key == Key.Left)
             {
-                keyStatus[Key.Left] = false;
+                playerShip.rotationOff();
             }
 
             if (e.Key == Key.Right)
             {
-                keyStatus[Key.Right] = false;
+                playerShip.rotationOff();
             }
             
             if (e.Key == Key.Up)
             {
-                keyStatus[Key.Up] = false;
+                playerShip.gasOff();
             }
-            playerShip.updateMove(keyStatus);
+     
         }
 
+        private void GameWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            Timer timer = new Timer() { Interval = 20 };
+            timer.Elapsed += this.updatePlayerShip;
+            timer.Start();
+        }
+
+        private void updatePlayerShip(object sender, EventArgs e)
+        {
+            try
+            {
+                this.Dispatcher.Invoke((Action)(() =>
+                {
+                    playerShip.updatePlayerShip();
+                }));
+            }
+            catch(TaskCanceledException)
+            {
+
+            }
+            
+        }
     }
 }
