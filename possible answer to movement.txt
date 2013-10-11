@@ -1,0 +1,40 @@
+public void move()
+    {
+        Matrix matrix = new Matrix();
+        double rotateAngle = 0;
+        if (this.isRotating == true)
+        {
+            rotateAngle = this.rotation;
+        }
+        double newHeading = playerShip.getHeading() + rotateAngle;
+
+        matrix.RotateAt(newHeading, playerShip.getShipCenterX(), playerShip.getShipCenterY());
+        //matrix.Rotate(rotateAngle);
+        double xMovement = playerShip.getHeading();
+        double yMovement = playerShip.getHeading();
+        xMovement = convertToRadians(xMovement);
+        yMovement = convertToRadians(yMovement);
+        xMovement = Math.Sin(xMovement) * 10;
+        yMovement = Math.Sin(yMovement) * 10 * -1;
+        
+        //MessageBox.Show("new y: " + yMovement.ToString() + " new x: " + xMovement.ToString());
+        //TranslateTransform move = new TranslateTransform(xMovement,yMovement);
+        matrix.Translate(xMovement, yMovement);
+        playerShip.setShipCenterX(xMovement += playerShip.getShipCenterX());
+        playerShip.setShipCenterY(yMovement += playerShip.getShipCenterY());
+        playerShip.setHeading(newHeading);
+        //theShipShape.RenderTransform = move;
+        theShipShape.RenderTransform = new MatrixTransform(matrix);
+    }
+
+    public void rotate(double rotation)
+    {
+        //double newHeading = playerShip.getHeading() + rotation;
+        //RotateTransform rotate = new RotateTransform(newHeading, playerShip.getShipCenterX(), playerShip.getShipCenterY());
+        //theShipShape.RenderTransform = rotate;
+        
+        //playerShip.setHeading(newHeading);
+        ////MessageBox.Show(newHeading.ToString());
+        this.isRotating = true;
+        this.rotation = rotation;
+    }
