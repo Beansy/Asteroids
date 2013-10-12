@@ -24,15 +24,15 @@ public class GameDrawer
     {
         this.gameCanvas = gameCanvas;
         this.playerShip = playerShip;
-        this.theShipShape = playerShip.getShipShape();
+        this.theShipShape = playerShip.getEntityShape();
         this.centerShipOnCanvas();
     }
 
     public void drawShip()
     {
-        theShipShape.Stroke = Brushes.Black;
+        theShipShape.Stroke = Brushes.White;
         theShipShape.StrokeThickness = 2;
-        theShipShape.Points = playerShip.getShipPoints();
+        theShipShape.Points = playerShip.getEntityDimensions();
         gameCanvas.Children.Add(theShipShape);
     }
 
@@ -40,8 +40,8 @@ public class GameDrawer
     {
         Matrix translateMatrix = new Matrix();
         translateMatrix.Translate(gameCanvas.Width / 2, gameCanvas.Height / 2);
-        playerShip.setShipCenterX(gameCanvas.Width / 2);
-        playerShip.setShipCenterY(gameCanvas.Height / 2);
+        playerShip.setEntityCenterX(gameCanvas.Width / 2);
+        playerShip.setEntityCenterY(gameCanvas.Height / 2);
         theShipShape.RenderTransform = new MatrixTransform(translateMatrix);
     }
 

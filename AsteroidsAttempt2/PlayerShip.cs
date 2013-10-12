@@ -14,18 +14,12 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Timers;
 
-public class PlayerShip
+public class PlayerShip : MovableGameEntity
 {
-    private double shipCenterX;
-    private double shipCenterY;
-    private int shipSize;
-    private double heading;
-    private double speed;
+    private double velocity;
     private double maxSpeed;
     private double minSpeed;
-    private double rotation;
-    private PointCollection shipPoints;
-    private Polygon theShipShape;
+    private double brakePower;
     private bool gasIsOn;
     private double acceleration;
     private double decceleration;
@@ -34,88 +28,37 @@ public class PlayerShip
 
     public PlayerShip()
 	{
-        this.shipCenterX = 0;
-        this.shipCenterY = 0;
-        this.shipSize = 15;
-        this.speed = 0;
+        this.entityCenterX = 0;
+        this.entityCenterY = 0;
+        this.entitySize = 15;
+        this.entityHealth = 100;
+        this.velocity = 0;
         this.rotation = 0;
         this.acceleration = 0.2;
         this.decceleration = 0.3;
+        this.brakePower = 0;
         this.maxSpeed = 35;
         this.minSpeed = 0;
         this.gasIsOn = false;
         this.gasOnTimer = new DateTime();
         this.gasOffTimer = new DateTime();
-        this.shipPoints = new PointCollection();
-        this.theShipShape = new Polygon();
-        this.setInitialShipPoints();
+        this.entityDimensions = new PointCollection();
+        this.entityShape = new Polygon();
+        this.setInitialEntityPoints();
 	}
- 
-    public double getHeading()
-    {
-        return this.heading;
-    }
 
-    public void setHeading(double newHeading)
+    public override void setInitialEntityPoints()
     {
-        this.heading = newHeading;
-    }
-     
-    public double getShipCenterX()
-    {
-        return this.shipCenterX;
-    }
+        Point shipTop = new Point(this.entityCenterX, this.entityCenterY - this.entitySize);
+        Point shipRight = new Point(this.entityCenterX + this.entitySize, this.entityCenterY + this.entitySize);
+        Point shipMiddle = new Point(this.entityCenterX, this.entityCenterY + 3);
+        Point shipLeft = new Point(this.entityCenterX - this.entitySize, this.entityCenterY + this.entitySize);
 
-    public double getShipCenterY()
-    {
-        return this.shipCenterY;
-    }
-
-    public void setShipCenterX(double newShipCenterX)
-    {
-        this.shipCenterX = newShipCenterX;
-    }
-
-    public void setShipCenterY(double newShipCenterY)
-    {
-        this.shipCenterY = newShipCenterY;
-    }
-
-    public int getShipSize()
-    {
-        return this.shipSize;
-    }
-
-    public void setShipSize(int newShipSize)
-    {
-        this.shipSize = newShipSize;
-    }
-
-    public void setShipPoints(PointCollection newShipPoints)
-    {
-        this.shipPoints = newShipPoints;
-    }
-
-    public Polygon getShipShape()
-    {
-        return this.theShipShape;
-    }
-
-    public void setInitialShipPoints()
-    {
-        Point shipTop = new Point(this.shipCenterX,this.shipCenterY - this.shipSize);
-        Point shipRight = new Point(this.shipCenterX + this.shipSize, this.shipCenterY + this.shipSize);
-        Point shipLeft = new Point(this.shipCenterX - this.shipSize, this.shipCenterY + this.shipSize);
-
-        this.shipPoints.Add(shipTop);
-        this.shipPoints.Add(shipRight);
-        this.shipPoints.Add(shipLeft);
-        this.shipPoints.Add(shipTop);
-    }
-
-    public PointCollection getShipPoints()
-    {
-        return this.shipPoints;
+        this.entityDimensions.Add(shipTop);
+        this.entityDimensions.Add(shipRight);
+        this.entityDimensions.Add(shipMiddle);
+        this.entityDimensions.Add(shipLeft);
+        this.entityDimensions.Add(shipTop);
     }
 
     public void gasOn()
@@ -135,6 +78,17 @@ public class PlayerShip
         this.gasIsOn = false;
     }
 
+    public void brakeOn()
+    {
+        this.brakePower = 3.2;
+        this.minSpeed = 0;
+    }
+
+    public void brakeOff()
+    {
+        this.brakePower = 0;
+    }
+
     public void rotationOn(double rotation)
     {
         this.rotation = rotation;
@@ -145,64 +99,46 @@ public class PlayerShip
         this.rotation = 0;
     }
 
-    private void handleWallCollisions()
-    {
-        if (this.shipCenterX <= 0)
-        {
-            this.shipCenterX = 999;
-        }
-
-        if (this.shipCenterX >= 1000)
-        {
-            this.shipCenterX = 0;
-        }
-
-        if (this.shipCenterY <= 0)
-        {
-            this.shipCenterY = 999;
-        }
-
-        if (this.shipCenterY >= 1000)
-        {
-            this.shipCenterY = 0;
-        }
-    }
-
-    public void updatePlayerShip()
+    private void setVelocity()
     {
         double time;
         if (this.gasIsOn == true)
         {
             time = Convert.ToDouble((DateTime.Now - gasOnTimer).TotalSeconds);
-            this.speed += acceleration * time;
-            if (this.speed > this.maxSpeed)
+            this.velocity += this.acceleration * time;
+            if (this.velocity > this.maxSpeed)
             {
-                this.speed = this.maxSpeed;
+                this.velocity = this.maxSpeed;
             }
         }
         else if (this.gasIsOn == false)
         {
             time = Convert.ToDouble((DateTime.Now - gasOffTimer).TotalSeconds);
-            this.speed -= decceleration * time;
-            if (this.speed < this.minSpeed)
+            this.velocity -= (this.decceleration + this.brakePower) * time;
+            if (this.velocity < this.minSpeed)
             {
-                this.speed = this.minSpeed;
+                this.velocity = this.minSpeed;
             }
         }
-        //MessageBox.Show(speed.ToString());
-        Matrix moveMatrix = new Matrix();
-        double radians = ConversionTools.degreesToRadians(this.getHeading());
-        double xMovement = Math.Cos(radians) * this.speed;
-        double yMovement = Math.Sin(radians) * this.speed;
+    }
 
-        this.setShipCenterX(xMovement += this.getShipCenterX());
-        this.setShipCenterY(yMovement += this.getShipCenterY());
-        double newHeading = this.getHeading() + this.rotation;
+    public override void updateEntity()
+    {
+        this.setVelocity();
+        
+        Matrix moveMatrix = new Matrix();
+        double radians = ConversionTools.degreesToRadians(this.getEntityHeading());
+        double xMovement = Math.Cos(radians) * this.velocity;
+        double yMovement = Math.Sin(radians) * this.velocity;
+
+        this.setEntityCenterX(xMovement += this.getEntityCenterX());
+        this.setEntityCenterY(yMovement += this.getEntityCenterY());
+        double newHeading = this.getEntityHeading() + this.rotation;
 
         moveMatrix.Translate(xMovement, yMovement);
-        moveMatrix.RotateAt(newHeading, this.getShipCenterX(), this.getShipCenterY());
-        this.setHeading(newHeading);
-        theShipShape.RenderTransform = new MatrixTransform(moveMatrix);
+        moveMatrix.RotateAt(newHeading, this.getEntityCenterX(), this.getEntityCenterY());
+        this.setEntityHeading(newHeading);
+        this.entityShape.RenderTransform = new MatrixTransform(moveMatrix);
 
         this.handleWallCollisions();
         

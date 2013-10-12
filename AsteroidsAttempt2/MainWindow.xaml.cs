@@ -54,6 +54,11 @@ namespace AsteroidsAttempt2
                 playerShip.gasOn();
             }
 
+            if (e.Key == Key.Down)
+            {
+                playerShip.brakeOn();
+            }
+
         }
 
         private void GameCanvas_KeyUp(object sender, KeyEventArgs e)
@@ -72,6 +77,11 @@ namespace AsteroidsAttempt2
             {
                 playerShip.gasOff();
             }
+
+            if (e.Key == Key.Down)
+            {
+                playerShip.brakeOff();
+            }
      
         }
 
@@ -88,7 +98,7 @@ namespace AsteroidsAttempt2
             {
                 this.Dispatcher.Invoke((Action)(() =>
                 {
-                    playerShip.updatePlayerShip();
+                    playerShip.updateEntity();
                 }));
             }
             catch(TaskCanceledException)
