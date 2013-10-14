@@ -21,10 +21,10 @@ namespace AsteroidsAttempt2
     /// </summary>
     public partial class MainWindow : Window
     {
-        PlayerShip playerShip; 
-        GameDrawer gameDrawer;
-        Dictionary<Key, bool> keyStatus = new Dictionary<Key, bool>();
-        List<Asteroid> currentAsteroidCollection = new List<Asteroid>();
+        private PlayerShip playerShip; 
+        private GameDrawer gameDrawer;
+        private Dictionary<Key, bool> keyStatus = new Dictionary<Key, bool>();
+        private List<Asteroid> currentAsteroidCollection = new List<Asteroid>();
  
         public MainWindow()
         {
@@ -33,13 +33,11 @@ namespace AsteroidsAttempt2
             this.playerShip = new PlayerShip();
             this.gameDrawer = new GameDrawer(GameCanvas, playerShip);
             this.gameDrawer.drawShip();
-            
-            //this.gameDrawer.drawAsteroid();
             this.keyStatus.Add(Key.Up, false);
             this.keyStatus.Add(Key.Left, false);
             this.keyStatus.Add(Key.Right, false);
         }
-
+        
         private void GameCanvas_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Left)
@@ -101,6 +99,7 @@ namespace AsteroidsAttempt2
 
         private void handleAsteroidAdd(object sender, EventArgs e)
         {
+
             try
             {
                 this.Dispatcher.Invoke((Action)(() =>
@@ -124,8 +123,11 @@ namespace AsteroidsAttempt2
                 {
                     playerShip.updateEntity();
                     this.currentAsteroidCollection = gameDrawer.getAsteroidCollection();
-                    foreach (Asteroid asteroid in this.currentAsteroidCollection) { asteroid.updateEntity();}
-                    //gameDrawer.checkCollisions();
+                    try
+                    {
+                        foreach (Asteroid asteroid in this.currentAsteroidCollection) { asteroid.updateEntity(); }
+                    }
+                    catch (InvalidOperationException) { }
                 }));
             }
             catch(TaskCanceledException)

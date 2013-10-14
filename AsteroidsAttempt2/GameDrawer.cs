@@ -20,6 +20,7 @@ public class GameDrawer
     PlayerShip playerShip;
     List<Asteroid> asteroidCollection;
     DateTime gameStartTime;
+    int asteroidsAdded = 0;
 
     public GameDrawer(Canvas gameCanvas, PlayerShip playerShip)
     {
@@ -36,6 +37,11 @@ public class GameDrawer
         return this.asteroidCollection;
     }
 
+    public Canvas getGameCanvas()
+    {
+        return this.gameCanvas;
+    }
+
     public void drawShip()
     {
         playerShip.entityShape.Name = "playerShip";
@@ -50,6 +56,8 @@ public class GameDrawer
     {
         Polygon newPolygon = new Polygon();
         theAsteroid.setEntityShape(newPolygon);
+        theAsteroid.entityShape.Name = "Asteroid" + this.asteroidsAdded;
+        this.asteroidsAdded += 1;
         theAsteroid.entityShape.Stroke = Brushes.White;
         theAsteroid.entityShape.StrokeThickness = 2;
         theAsteroid.entityShape.Points = theAsteroid.getEntityDimensions();
@@ -63,7 +71,6 @@ public class GameDrawer
     {
         Asteroid newAsteroid = new Asteroid(playerShip, this);
         asteroidCollection.Add(newAsteroid);
-        newAsteroid.setRandomPoints();
         drawAsteroid(newAsteroid);
     }
 

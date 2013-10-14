@@ -54,15 +54,17 @@ public class Asteroid : MovableGameEntity
         this.checkPlayerCollision();
     }
 
+    // needs to be improved - is placeholder
     public void checkPlayerCollision()
     {
         if (((((thePlayerShip.entityCenterX - this.entityCenterX) <= 10) && ((thePlayerShip.entityCenterX - this.entityCenterX) >= 0)) || ((thePlayerShip.entityCenterX - this.entityCenterX >= -10) && ((thePlayerShip.entityCenterX - this.entityCenterX) <= 0))) && ((((thePlayerShip.entityCenterY - this.entityCenterY) <= 10) && ((thePlayerShip.entityCenterY - this.entityCenterY) >= 0)) || ((thePlayerShip.entityCenterY - this.entityCenterY >= -10) && ((thePlayerShip.entityCenterY - this.entityCenterY) <= 0))))
         {
             theGameDrawer.getAsteroidCollection().Remove(this);
+            theGameDrawer.getGameCanvas().Children.Remove(this.entityShape);
         }
     }
 
-    public void setRandomPoints()
+    private void setRandomPoints()
     {
         Random randomPoint = new Random();
         this.entityHeading = Convert.ToDouble(randomPoint.Next(1, 360));
@@ -91,6 +93,7 @@ public class Asteroid : MovableGameEntity
         this.entityDimensions.Add(point8);
         this.entityDimensions.Add(point9);
 
+        this.setRandomPoints();
     }
 
 }
