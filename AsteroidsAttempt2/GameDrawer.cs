@@ -18,22 +18,53 @@ public class GameDrawer
 {
     Canvas gameCanvas;
     PlayerShip playerShip;
-    Polygon theShipShape;
+    List<Asteroid> asteroidCollection;
+    DateTime gameStartTime;
 
     public GameDrawer(Canvas gameCanvas, PlayerShip playerShip)
     {
         this.gameCanvas = gameCanvas;
+        this.asteroidCollection = new List<Asteroid>();
+        this.gameStartTime = new DateTime();
+        this.gameStartTime = DateTime.Now;
         this.playerShip = playerShip;
-        this.theShipShape = playerShip.getEntityShape();
         this.centerShipOnCanvas();
+    }
+
+    public List<Asteroid> getAsteroidCollection()
+    {
+        return this.asteroidCollection;
     }
 
     public void drawShip()
     {
-        theShipShape.Stroke = Brushes.White;
-        theShipShape.StrokeThickness = 2;
-        theShipShape.Points = playerShip.getEntityDimensions();
-        gameCanvas.Children.Add(theShipShape);
+        playerShip.entityShape.Name = "playerShip";
+        playerShip.entityShape.Stroke = Brushes.White;
+        playerShip.entityShape.StrokeThickness = 2;
+        playerShip.entityShape.Points = playerShip.getEntityDimensions();
+        gameCanvas.Children.Add(playerShip.entityShape);
+        
+    }
+
+    public void drawAsteroid(Asteroid theAsteroid)
+    {
+        Polygon newPolygon = new Polygon();
+        theAsteroid.setEntityShape(newPolygon);
+        theAsteroid.entityShape.Stroke = Brushes.White;
+        theAsteroid.entityShape.StrokeThickness = 2;
+        theAsteroid.entityShape.Points = theAsteroid.getEntityDimensions();
+        gameCanvas.Children.Add(theAsteroid.entityShape);
+        
+        TranslateTransform initialTransform = new TranslateTransform(theAsteroid.getEntityCenterX(), theAsteroid.getEntityCenterY());
+        theAsteroid.entityShape.RenderTransform = initialTransform;
+    }
+
+    public void generateAsteroid()
+    {
+        Asteroid newAsteroid = new Asteroid(playerShip, this);
+        asteroidCollection.Add(newAsteroid);
+        newAsteroid.setRandomPoints();
+        drawAsteroid(newAsteroid);
     }
 
     public void centerShipOnCanvas()
@@ -42,7 +73,7 @@ public class GameDrawer
         translateMatrix.Translate(gameCanvas.Width / 2, gameCanvas.Height / 2);
         playerShip.setEntityCenterX(gameCanvas.Width / 2);
         playerShip.setEntityCenterY(gameCanvas.Height / 2);
-        theShipShape.RenderTransform = new MatrixTransform(translateMatrix);
+        playerShip.entityShape.RenderTransform = new MatrixTransform(translateMatrix);
     }
 
 }

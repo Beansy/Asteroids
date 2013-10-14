@@ -21,9 +21,10 @@ namespace AsteroidsAttempt2
     /// </summary>
     public partial class MainWindow : Window
     {
-        PlayerShip playerShip;
+        PlayerShip playerShip; 
         GameDrawer gameDrawer;
         Dictionary<Key, bool> keyStatus = new Dictionary<Key, bool>();
+        List<Asteroid> currentAsteroidCollection = new List<Asteroid>();
  
         public MainWindow()
         {
@@ -32,6 +33,8 @@ namespace AsteroidsAttempt2
             this.playerShip = new PlayerShip();
             this.gameDrawer = new GameDrawer(GameCanvas, playerShip);
             this.gameDrawer.drawShip();
+            
+            //this.gameDrawer.drawAsteroid();
             this.keyStatus.Add(Key.Up, false);
             this.keyStatus.Add(Key.Left, false);
             this.keyStatus.Add(Key.Right, false);
@@ -87,9 +90,30 @@ namespace AsteroidsAttempt2
 
         private void GameWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            Timer timer = new Timer() { Interval = 20 };
-            timer.Elapsed += this.updatePlayerShip;
-            timer.Start();
+            Timer fastGameUpdater = new Timer() { Interval = 20 };
+            Timer asteroidAddTimer = new Timer() { Interval = 3000 };
+            fastGameUpdater.Elapsed += this.updatePlayerShip;
+            fastGameUpdater.Start();
+            asteroidAddTimer.Elapsed += this.handleAsteroidAdd;
+            asteroidAddTimer.Start();
+
+        }
+
+        private void handleAsteroidAdd(object sender, EventArgs e)
+        {
+            try
+            {
+                this.Dispatcher.Invoke((Action)(() =>
+                {
+                    gameDrawer.generateAsteroid();
+                   
+                }));
+            }
+            catch (TaskCanceledException)
+            {
+
+            }
+
         }
 
         private void updatePlayerShip(object sender, EventArgs e)
@@ -99,6 +123,9 @@ namespace AsteroidsAttempt2
                 this.Dispatcher.Invoke((Action)(() =>
                 {
                     playerShip.updateEntity();
+                    this.currentAsteroidCollection = gameDrawer.getAsteroidCollection();
+                    foreach (Asteroid asteroid in this.currentAsteroidCollection) { asteroid.updateEntity();}
+                    //gameDrawer.checkCollisions();
                 }));
             }
             catch(TaskCanceledException)

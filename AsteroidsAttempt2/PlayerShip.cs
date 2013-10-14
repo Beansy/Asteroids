@@ -42,13 +42,14 @@ public class PlayerShip : MovableGameEntity
         this.gasIsOn = false;
         this.gasOnTimer = new DateTime();
         this.gasOffTimer = new DateTime();
-        this.entityDimensions = new PointCollection();
-        this.entityShape = new Polygon();
         this.setInitialEntityPoints();
+        
 	}
 
     public override void setInitialEntityPoints()
     {
+        Polygon newPolygon = new Polygon();
+        this.setEntityShape(newPolygon);
         Point shipTop = new Point(this.entityCenterX, this.entityCenterY - this.entitySize);
         Point shipRight = new Point(this.entityCenterX + this.entitySize, this.entityCenterY + this.entitySize);
         Point shipMiddle = new Point(this.entityCenterX, this.entityCenterY + 3);

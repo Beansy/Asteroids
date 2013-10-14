@@ -27,6 +27,9 @@ public abstract class MovableGameEntity
 
     public MovableGameEntity()
 	{
+        this.entityDimensions = new PointCollection();
+        this.entityShape = new Polygon();
+        
 	}
     //Abstract
     public abstract void setInitialEntityPoints();
@@ -37,6 +40,12 @@ public abstract class MovableGameEntity
     {
         return this.entityHeading;
     }
+
+    public void setEntityShape(Polygon newEntityShape)
+    {
+        this.entityShape = newEntityShape;
+    }
+
 
     public void setEntityHeading(double newHeading)
     {
