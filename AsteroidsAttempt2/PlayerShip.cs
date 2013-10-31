@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Timers;
 
+
 public class PlayerShip : MovableGameEntity
 {
     private double velocity;
@@ -25,6 +26,9 @@ public class PlayerShip : MovableGameEntity
     private double decceleration;
     private DateTime gasOnTimer;
     private DateTime gasOffTimer;
+    private int bulletsFired;
+    public Bullet myBullet;
+    public GameController theGameDrawer;
 
     public PlayerShip()
 	{
@@ -39,11 +43,12 @@ public class PlayerShip : MovableGameEntity
         this.brakePower = 0;
         this.maxSpeed = 35;
         this.minSpeed = 0;
+        this.bulletsFired = 0;
         this.gasIsOn = false;
         this.gasOnTimer = new DateTime();
         this.gasOffTimer = new DateTime();
-        this.setInitialEntityPoints();
         
+        this.setInitialEntityPoints(); 
 	}
 
     public override void setInitialEntityPoints()
@@ -71,6 +76,15 @@ public class PlayerShip : MovableGameEntity
             this.gasIsOn = true;
         }
         
+    }
+
+    public void fire() 
+    {
+        this.bulletsFired += 1;
+        if (this.myBullet == null)
+        {
+            this.myBullet = new Bullet(this.bulletsFired, this.entityCenterX, this.entityCenterY, this.entityHeading, theGameDrawer);
+        }
     }
 
     public void gasOff()
@@ -123,6 +137,21 @@ public class PlayerShip : MovableGameEntity
         }
     }
 
+    public void updateMyBullets()
+    {
+        if (this.myBullet != null) 
+        { 
+            this.myBullet.update();
+            if ((DateTime.Now - this.myBullet.getFireTime()).TotalSeconds > .5) 
+            { 
+                theGameDrawer.getGameCanvas().Children.Remove(this.myBullet.getBulletShape()); 
+                this.myBullet = null; 
+            }
+            
+        }
+        
+    }
+
     public override void updateEntity()
     {
         this.setVelocity();
@@ -142,6 +171,7 @@ public class PlayerShip : MovableGameEntity
         this.entityShape.RenderTransform = new MatrixTransform(moveMatrix);
 
         this.handleWallCollisions();
-        
+        this.updateMyBullets();
     }
+
 }

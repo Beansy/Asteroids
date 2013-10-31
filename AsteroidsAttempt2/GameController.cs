@@ -14,25 +14,66 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Drawing;
 
-public class GameDrawer
+public class GameController
 {
-    Canvas gameCanvas;
-    PlayerShip playerShip;
-    List<Asteroid> asteroidCollection;
-    DateTime gameStartTime;
-    int asteroidsAdded = 0;
+    public Canvas gameCanvas;
+    public PlayerShip playerShip;
+    public List<MovableGameEntity> asteroidCollection;
+    public DateTime gameStartTime;
+    public int asteroidsAdded;
+    public int asteroidsKilled;
+    public int playerLives;
 
-    public GameDrawer(Canvas gameCanvas, PlayerShip playerShip)
+    public GameController(Canvas gameCanvas, PlayerShip playerShip)
     {
         this.gameCanvas = gameCanvas;
-        this.asteroidCollection = new List<Asteroid>();
+        this.asteroidCollection = new List<MovableGameEntity>();
         this.gameStartTime = new DateTime();
         this.gameStartTime = DateTime.Now;
+        this.asteroidsAdded = 0;
+        this.asteroidsKilled = 0;
+        this.playerLives = 3;
         this.playerShip = playerShip;
+        this.playerShip.theGameDrawer = this;
         this.centerShipOnCanvas();
     }
 
-    public List<Asteroid> getAsteroidCollection()
+    public void killAsteroid(Asteroid asteroid)
+    {
+        this.asteroidCollection.Remove(asteroid);
+        this.gameCanvas.Children.Remove(asteroid.entityShape);
+        this.asteroidsKilled += 1;
+    }
+
+    public void killPlayer(Asteroid asteroid)
+    {
+        asteroidCollection.Remove(asteroid);
+        this.gameCanvas.Children.Remove(asteroid.entityShape);
+        if (this.playerShip != null)
+        {
+            this.gameCanvas.Children.Remove(this.playerShip.entityShape);
+            this.playerShip.setEntityCenterX(500);
+            this.playerShip.setEntityCenterY(500);
+            this.playerShip.setEntityHeading(0);
+            this.playerLives -= 1;
+        }
+
+        if (this.playerLives > 0)
+        {
+            this.gameCanvas.Children.Add(this.playerShip.getEntityShape());
+        }
+        else { this.playerShip = null; }
+    }
+
+    public void drawBullet(Bullet theBullet)
+    {
+        gameCanvas.Children.Add(theBullet.getBulletShape());
+
+        TranslateTransform initialTransform = new TranslateTransform(theBullet.getBulletX(), theBullet.getBulletY());
+        theBullet.getBulletShape().RenderTransform = initialTransform;
+    }
+
+    public List<MovableGameEntity> getAsteroidCollection()
     {
         return this.asteroidCollection;
     }
@@ -52,7 +93,7 @@ public class GameDrawer
         
     }
 
-    public void drawAsteroid(Asteroid theAsteroid)
+    public void drawAsteroid(MovableGameEntity theAsteroid)
     {
         Polygon newPolygon = new Polygon();
         theAsteroid.setEntityShape(newPolygon);
@@ -69,7 +110,7 @@ public class GameDrawer
 
     public void generateAsteroid()
     {
-        Asteroid newAsteroid = new Asteroid(playerShip, this);
+        MovableGameEntity newAsteroid = new Asteroid(playerShip, this);
         asteroidCollection.Add(newAsteroid);
         drawAsteroid(newAsteroid);
     }

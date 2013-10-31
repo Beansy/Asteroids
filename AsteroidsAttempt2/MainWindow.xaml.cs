@@ -22,16 +22,16 @@ namespace AsteroidsAttempt2
     public partial class MainWindow : Window
     {
         private PlayerShip playerShip; 
-        private GameDrawer gameDrawer;
+        private GameController gameDrawer;
         private Dictionary<Key, bool> keyStatus = new Dictionary<Key, bool>();
-        private List<Asteroid> currentAsteroidCollection = new List<Asteroid>();
+        private List<MovableGameEntity> currentAsteroidCollection = new List<MovableGameEntity>();
  
         public MainWindow()
         {
             InitializeComponent();
             GameCanvas.Focus();
             this.playerShip = new PlayerShip();
-            this.gameDrawer = new GameDrawer(GameCanvas, playerShip);
+            this.gameDrawer = new GameController(GameCanvas, playerShip);
             this.gameDrawer.drawShip();
             this.keyStatus.Add(Key.Up, false);
             this.keyStatus.Add(Key.Left, false);
@@ -58,6 +58,11 @@ namespace AsteroidsAttempt2
             if (e.Key == Key.Down)
             {
                 playerShip.brakeOn();
+            }
+
+            if (e.Key == Key.Space)
+            {
+                playerShip.fire();
             }
 
         }
@@ -89,8 +94,8 @@ namespace AsteroidsAttempt2
         private void GameWindow_Loaded(object sender, RoutedEventArgs e)
         {
             Timer fastGameUpdater = new Timer() { Interval = 20 };
-            Timer asteroidAddTimer = new Timer() { Interval = 3000 };
-            fastGameUpdater.Elapsed += this.updatePlayerShip;
+            Timer asteroidAddTimer = new Timer() { Interval = 1000 };
+            fastGameUpdater.Elapsed += this.updateGameObjects;
             fastGameUpdater.Start();
             asteroidAddTimer.Elapsed += this.handleAsteroidAdd;
             asteroidAddTimer.Start();
@@ -115,17 +120,24 @@ namespace AsteroidsAttempt2
 
         }
 
-        private void updatePlayerShip(object sender, EventArgs e)
+        private void updateGameObjects(object sender, EventArgs e)
         {
             try
             {
                 this.Dispatcher.Invoke((Action)(() =>
                 {
                     playerShip.updateEntity();
+                    tbxScore.Content = (this.gameDrawer.asteroidsKilled * 10).ToString();
+                    tbxLives.Content = this.gameDrawer.playerLives.ToString();
+                    if (this.gameDrawer.playerLives <= 0)
+                    {
+                        lblYouLose.Visibility = System.Windows.Visibility.Visible;
+                        
+                    }
                     this.currentAsteroidCollection = gameDrawer.getAsteroidCollection();
                     try
                     {
-                        foreach (Asteroid asteroid in this.currentAsteroidCollection) { asteroid.updateEntity(); }
+                        foreach (MovableGameEntity asteroid in this.currentAsteroidCollection) { asteroid.updateEntity(); }
                     }
                     catch (InvalidOperationException) { }
                 }));

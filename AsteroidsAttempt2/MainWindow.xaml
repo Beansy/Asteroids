@@ -1,13 +1,19 @@
 ﻿<Window x:Name="GameWindow" x:Class="AsteroidsAttempt2.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Width="1000" Height="1000" HorizontalAlignment="Left" VerticalAlignment="Top" Loaded="GameWindow_Loaded">
-    
-<Canvas x:Name="GameCanvas" Focusable="True" IsEnabled="True" HorizontalAlignment="Left" Height="1000" VerticalAlignment="Top" Width="1000" KeyDown="GameCanvas_KeyDown"  KeyUp="GameCanvas_KeyUp">
+        Title="Asteroids" Width="1000" Height="1000" HorizontalAlignment="Left"  Loaded="GameWindow_Loaded" VerticalAlignment="Center" WindowStartupLocation="CenterScreen" WindowState="Maximized" Cursor="Arrow" Background="#FF363535">
+    <Grid>
+    <Canvas Grid.Column="1" Grid.Row="1" x:Name="GameCanvas" Focusable="True" IsEnabled="True" HorizontalAlignment="Stretch"  VerticalAlignment="Stretch"  KeyDown="GameCanvas_KeyDown"  KeyUp="GameCanvas_KeyUp" RenderTransformOrigin="0.5,0.5" Width="1000" Height="1000">       
         <Canvas.Background>
             <ImageBrush ImageSource="D:\CPIT\BCPR283\Asteroids\Asteroids\AsteroidsAttempt2\Resources\SpaceBackground.jpg" Stretch="Fill"/>
         </Canvas.Background>
-        
     </Canvas>
-
+        <Border Grid.Row="1" Grid.Column="1" x:Name="border" BorderThickness="70" Width="1060" Height="1060" BorderBrush="#FF171717" CornerRadius="5"/>
+        <Label x:Name="lblScore" Grid.Row="5" Grid.Column="2" Content="Score" Margin="3,0,0,0" FontWeight="Bold" FontFamily="Tekton Pro" FontSize="24" Width="100" Height="50" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#FFF0EDED" />
+        <Label x:Name="tbxScore" Grid.Row="5" Grid.Column="2" Margin="2,50,0,0" FontWeight="Bold" FontFamily="Tekton Pro" FontSize="24" Width="100" Height="35" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#FFF0EDED" Background="#FF363535" BorderBrush="#FF363535" />
+        <Label x:Name="lblLives" Grid.Row="5" Grid.Column="2" Content="Lives " Margin="3,100,0,0" FontWeight="Bold" FontFamily="Tekton Pro" FontSize="24" Width="100" Height="50" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#FFF0EDED" />
+        <Label x:Name="tbxLives" Grid.Row="5" Grid.Column="2" Margin="2,150,0,0" FontWeight="Bold" FontFamily="Tekton Pro" FontSize="24" Width="100" Height="35" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#FFF0EDED" Background="#FF363535" BorderBrush="#FF363535" />
+        <Label x:Name="lblYouLose" Grid.Row="5" Grid.Column="2" Content="Game Over!" Margin="0" FontWeight="Bold" FontFamily="Tekton Pro" FontSize="48" Width="300" Height="70" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FFF0EDED" Visibility="Hidden" />
+        
+    </Grid>
 </Window>

@@ -17,24 +17,25 @@ using System.Timers;
 public class Asteroid : MovableGameEntity
 {
     private Random randomPoint;
-    private GameDrawer theGameDrawer;
+    private GameController theGameDrawer;
     private PlayerShip thePlayerShip;
     private int speed;
 
-    public Asteroid(PlayerShip thePlayerShip, GameDrawer theGameDrawer)
+    public Asteroid(PlayerShip thePlayerShip, GameController theGameDrawer)
 	{
-        this.entitySize = 10;
-        this.speed = 2;
-        this.rotation = 5;
         this.randomPoint = new Random();
+        this.speed = randomPoint.Next(3, 7);
+        this.rotation = 5;
         this.thePlayerShip = thePlayerShip;
         this.theGameDrawer = theGameDrawer;
         this.entityHeading = 0;
         this.entityCenterX = 0;
         this.entityCenterY = 0;
+        this.entitySize = randomPoint.Next(10, 40);
         this.setInitialEntityPoints();
+        
 	}
-
+    
     public override void updateEntity()
     {
         Matrix moveMatrix = new Matrix();
@@ -48,19 +49,36 @@ public class Asteroid : MovableGameEntity
         moveMatrix.Translate(xMovement, yMovement);
         moveMatrix.RotateAt(this.rotation, this.getEntityCenterX(), this.getEntityCenterY());
         this.entityShape.RenderTransform = new MatrixTransform(moveMatrix);
-        
+ 
         this.rotation += 5;
         this.handleWallCollisions();
         this.checkPlayerCollision();
+        this.checkBulletCollision();
     }
 
     // needs to be improved - is placeholder
     public void checkPlayerCollision()
     {
-        if (((((thePlayerShip.entityCenterX - this.entityCenterX) <= 10) && ((thePlayerShip.entityCenterX - this.entityCenterX) >= 0)) || ((thePlayerShip.entityCenterX - this.entityCenterX >= -10) && ((thePlayerShip.entityCenterX - this.entityCenterX) <= 0))) && ((((thePlayerShip.entityCenterY - this.entityCenterY) <= 10) && ((thePlayerShip.entityCenterY - this.entityCenterY) >= 0)) || ((thePlayerShip.entityCenterY - this.entityCenterY >= -10) && ((thePlayerShip.entityCenterY - this.entityCenterY) <= 0))))
+        if (this.thePlayerShip != null)
         {
-            theGameDrawer.getAsteroidCollection().Remove(this);
-            theGameDrawer.getGameCanvas().Children.Remove(this.entityShape);
+            if (((((thePlayerShip.entityCenterX - this.entityCenterX) <= this.entitySize * 2.3) && ((thePlayerShip.entityCenterX - this.entityCenterX) >= 0)) || ((thePlayerShip.entityCenterX - this.entityCenterX >= -this.entitySize * 2.3) && ((thePlayerShip.entityCenterX - this.entityCenterX) <= 0))) && ((((thePlayerShip.entityCenterY - this.entityCenterY) <= this.entitySize * 2.3) && ((thePlayerShip.entityCenterY - this.entityCenterY) >= 0)) || ((thePlayerShip.entityCenterY - this.entityCenterY >= -this.entitySize * 2.3) && ((thePlayerShip.entityCenterY - this.entityCenterY) <= 0))))
+            {
+                theGameDrawer.killPlayer(this);
+            }
+        }
+    }
+   
+    public void checkBulletCollision()
+    {
+        if (thePlayerShip != null)
+        {
+            if (thePlayerShip.myBullet != null)
+            {
+                if (((((thePlayerShip.myBullet.getBulletX() - this.entityCenterX) <= this.entitySize * 1.8) && ((thePlayerShip.myBullet.getBulletX() - this.entityCenterX) >= 0)) || ((thePlayerShip.myBullet.getBulletX() - this.entityCenterX >= -this.entitySize * 1.8) && ((thePlayerShip.myBullet.getBulletX() - this.entityCenterX) <= 0))) && ((((thePlayerShip.myBullet.getBulletY() - this.entityCenterY) <= this.entitySize * 1.8) && ((thePlayerShip.myBullet.getBulletY() - this.entityCenterY) >= 0)) || ((thePlayerShip.myBullet.getBulletY() - this.entityCenterY >= -this.entitySize * 1.8) && ((thePlayerShip.myBullet.getBulletY() - this.entityCenterY) <= 0))))
+                {
+                    theGameDrawer.killAsteroid(this);
+                }
+            }
         }
     }
 
@@ -68,11 +86,14 @@ public class Asteroid : MovableGameEntity
     {
         Random randomPoint = new Random();
         this.entityHeading = Convert.ToDouble(randomPoint.Next(1, 360));
+        
         this.entityCenterX = 0;
         this.entityCenterY = Convert.ToDouble(randomPoint.Next(10, 990));
     }
+
     public override void setInitialEntityPoints()
     {
+        
         Point point1 = new Point(this.entityCenterX, this.entityCenterY - this.entitySize);
         Point point2 = new Point(this.entityCenterX + this.entitySize, this.entityCenterY - (this.entitySize / 2));
         Point point3 = new Point(this.entityCenterX + (this.entitySize * 1.5), this.entityCenterY);
